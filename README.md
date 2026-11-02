@@ -105,26 +105,27 @@ names and file names from the firmware's symbol and string tables, and strings t
 
 ## Credits
 
-Projects are named as they appear on GitHub; the facts were taken from their source trees as of October 2026.
+Projects are linked to their repositories; the facts were taken from their source trees (default branch) as of
+October 2026.
 
-- **lian-li-linux** (Linux daemon and drivers for Lian Li devices)
+- **[lian-li-linux](https://github.com/sgtaziz/lian-li-linux)** (Linux daemon and drivers for Lian Li devices)
   first published the header builder for this panel family (`crates/lianli-devices/src/crypto.rs`: the DES key,
   the opcodes, the parameter layouts), the init sequence, the H.264 chunking and flow control, the close-and-reopen
   recovery, the 480 × 1920 / 512 000-byte frame limits (`crates/lianli-shared/src/screen.rs`), the desktop-mode
   device ids and switch-back magic (`crates/lianli-devices/src/display_switcher.rs`) and the TURZX monitor-mode
   streaming protocol (`crates/lianli-devices/src/turzx/`).
-- **hypercolor** has a driver written for exactly this product
+- **[hypercolor](https://github.com/hyperb1iss/hypercolor)** has a driver written for exactly this product
   (`crates/hypercolor-hal/src/drivers/lianli/universal_screen.rs`) with committed DES test vectors and a driver
   specification; it documented the reply status `0xC8`, the silent drop of wrong-geometry frames and the
   delivered frame rate.
-- **lianli-python-lcd-overlay** (its `Linx` module, `Linx/linx.py`) documented the clock
+- **[lianli-python-lcd-overlay](https://github.com/elniko/lianli-python-lcd-overlay)** (its `Linx` module, `Linx/linx.py`) documented the clock
   modes 0/1/2, the wake-from-desktop write and the PNG frame path.
 - **[turing-smart-screen-python](https://github.com/mathoudebine/turing-smart-screen-python)** drives TURZX-branded
   panels (`library/lcd/lcd_comm_turing_usb.py`). Those run TURZX's own firmware, not Lian Li's build, so its facts
   apply only partly: the header, frame and H.264 commands agree, its storage-query and settings layouts turned out
   to match Lian Li's firmware, and two of its storage opcodes mean something else on this panel (LCD document,
   section 7).
-- **OpenRGB** supports the LED ring and published its `0x11` frame layout independently.
+- **[OpenRGB](https://gitlab.com/CalcProgrammer1/OpenRGB)** supports the LED ring and published its `0x11` frame layout independently.
 - **Lian Li** is the vendor whose software and firmware were observed. Product and command names are Lian Li's.
 
 Nothing from these projects (code, comments or prose) is copied here, only the protocol facts they established;
