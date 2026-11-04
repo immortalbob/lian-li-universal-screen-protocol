@@ -82,6 +82,7 @@ matters; video payloads are described, not reproduced.
 | 2026-11-01 to 11-02 overnight | an S3 sleep of about 6.5 h: the LCD and the LED ring reopened by themselves after the resume |
 | 2026-11-02 06:21 to 06:31 | H.264 streams from a different encoder (Windows Media Foundation, High profile), portrait and host-rotated landscape content |
 | 2026-11-02 06:45 to 06:55 | the LED ring's layout, lighting single wire LEDs (0, 1, 47, 50, 51, 52, 55, 17) and noting where each appears |
+| 2026-11-03 12:08 to 13:01 | the LED ring: timed reads of IN `0x81` after frames (nothing), single-chunk `0x11` packets (each takes effect alone), streaming at 60, 120 and 240 requested frames/s (57, 111, 206 delivered, all accepted, no tearing) |
 
 ## Sources
 

@@ -48,6 +48,15 @@ control commands during heavy H.264 ingest, the 8 bytes after the chip id, and t
 
 ## Change log
 
+- **2026-11-03, LED ring bench results.** Three ring items moved from INFERRED or UNKNOWN to OBSERVED with
+  independently written code on the same unit: `0x11` produces no IN data (timed reads of 50 and 500 ms, while
+  streaming and right after a single frame); each 20-LED packet takes effect on its own (lone offset-0, offset-20 and
+  offset-40 packets each changed their chunk at once, so there is no end-of-frame signal); the ring accepted 206
+  frames/s with no tearing (57, 111 and 206 delivered at 60, 120 and 240 requested, the three writes of a frame 1.0 to
+  1.3 ms). The capture decode also shows L-Connect's cadence (20 to 22 frames/s) unchanged by its speed setting, so
+  speed changes the animation step, not the interval. Ring sections 4.1, 7.3 and 13, the README's bench table and the
+  ring rows above are updated. Host note added: a frame wait rounded to the Windows timer tick halves a 60 frames/s
+  stream.
 - **2026-11-02, first edition.** Written from one USBPcap capture of L-Connect 3 (2026-10-30, 05:17 to 05:29:
   the switch to monitor mode and back, the vendor's re-initialisation, the offline-clock toggle, the 180° button,
   the landscape/portrait switch), the .NET metadata of `lianli.lcd207.dll` 1.4.0.125 and `L-Connect.Core.dll`, a
@@ -66,7 +75,9 @@ control commands during heavy H.264 ingest, the 8 bytes after the chip id, and t
 |---|---|---|---|
 | `0x11` SetLeds | complete: `11 <first LED> 00 00` + 20 × RGB, three packets at offsets 0, 20, 40 = 60 LEDs | yes (2026-10-30, 45 285 packets = 15 095 frames, 20-22 frames/s); first published by lian-li-linux, OpenRGB and lianli-python-lcd-overlay; OBSERVED 2026-10-27 | bytes 2-3 always `00 00` on the wire, meaning UNKNOWN; per-packet latching, other offsets and the highest frame rate UNKNOWN (36 frames/s OBSERVED without errors) |
 | `0x10` GetVersion | complete: request `10` + 63 × `00`, reply `10 <major> <minor>` + 61 × `00`; `10 01 03` = `lianliLed88_1_3` | yes (once, 05:19:14.878, reply 05:19:15.080); first published by lianli-python-lcd-overlay; OBSERVED 2026-10-27 | whether the vendor also sends it at service start was not seen |
-| IN reply to `0x11` | none | yes (a read stayed pending for 10 min of frames and received nothing) | INFERRED: frames are fire-and-forget |
+| IN reply to `0x11` | none | yes (a read stayed pending for 10 min of frames and received nothing); OBSERVED 2026-11-03 (timed reads of 50 and 500 ms while streaming and right after a frame: nothing) | frames are fire-and-forget |
+| per-packet latching | each 20-LED packet takes effect on its own; no end-of-frame signal | no (the vendor always sends all three) ; OBSERVED 2026-11-03 with lone offset-0, offset-20 and offset-40 packets | |
+| streaming rate | at least 206 frames/s accepted (57, 111 and 206 delivered at 60, 120, 240 requested), writes 1.0-1.3 ms per frame | L-Connect: 20-22 frames/s regardless of its speed setting; OBSERVED 2026-11-03 for the fast rates | the ring's true ceiling |
 | brightness, effect, speed, save, off | no such commands: all are host-side changes to the `0x11` frame contents | yes (every L-Connect change altered only the RGB bytes; brightness 0 % = all-zero frames) | L-Connect has no off control for the ring |
 | vendor effects (19, `LightingMode` 0-18) | host-rendered frame streams; names and values METADATA, algorithms first published by lian-li-linux | Rainbow yes: 30 frames byte-identical to lian-li-linux's renderer | the other 18 not compared with the vendor; L-Connect's slider-to-level mapping UNKNOWN |
 | `0x0E`, `0x12`, `0x15` | do not send | no | RF-dongle names and a possible reset in the ring's vendor enum (METADATA) |

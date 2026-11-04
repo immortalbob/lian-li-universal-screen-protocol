@@ -160,12 +160,16 @@ ones on the wire (CAPTURED).
 - **No brightness byte.** The ring has no brightness field or command. L-Connect's brightness slider only scales the
   colour values in the frames, and 0 % produced all-zero frames (CAPTURED: 136 all-black frames from 05:25:21.537).
   Dimming is the host's job.
-- **No reply (CAPTURED).** After the `0x10` reply, L-Connect kept a read pending on IN `0x81` from 05:19:15.080 to
-  the end of the capture (about 10 minutes and some 12 000 frames); nothing arrived. INFERRED: `0x11` produces no IN
-  data. The only IN data in the whole capture is the `0x10` reply.
-- **Latching.** The ring keeps showing the last frame when the host stops writing (OBSERVED 2026-10-27, section 10).
-  Whether each 20-LED packet takes effect on its own or only once the packet at offset 40 arrives is UNKNOWN; the
-  vendor always sends all three.
+- **No reply (CAPTURED, OBSERVED).** After the `0x10` reply, L-Connect kept a read pending on IN `0x81` from
+  05:19:15.080 to the end of the capture (about 10 minutes and some 12 000 frames); nothing arrived. Third-party code
+  then read IN `0x81` deliberately on 2026-11-03: twice with a 500 ms timeout while frames streamed every 62 ms, and
+  twice with 50 ms plus once with 500 ms right after a single frame; nothing arrived. `0x11` produces no IN data
+  (OBSERVED). The only IN data the ring ever sent is the `0x10` reply. Never wait for a reply after a frame.
+- **Each packet takes effect on its own (OBSERVED 2026-11-03).** Third-party code sent, from a uniform frame, single
+  packets that changed only one chunk: offset 0 alone, offset 20 alone and offset 40 alone (and pairs 0+20 and 20+40).
+  Each one moved the lit LED at once; no end-of-frame signal exists with bytes 2-3 at `00 00`. So a partial update of
+  20 LEDs is one packet, and a frame whose three packets are spread out in time shows old and new chunks mixed for
+  that long. The ring keeps showing the last frame when the host stops writing (OBSERVED 2026-10-27, section 10).
 
 ### 4.2 Captured example
 
@@ -294,12 +298,19 @@ as a failed frame and resend the whole frame (INFERRED).
 | L-Connect, Wave (from about 05:22:30) | about 22 frames/s | CAPTURED |
 | L-Connect over the whole capture | 15 095 frames in 11.6 min, 20 to 22 frames/s, no gap over 1 s, including the panel's trip to monitor mode and back (05:18:27 to 05:19:12, 2 970 packets, all completed) | CAPTURED |
 | Third-party code | frame intervals of 27.5 ms (about 36 frames/s) and 41.25 ms, no failed frame | OBSERVED 2026-10-27 |
+| Third-party code, 20 s at each requested rate | 60 requested: 57 delivered; 120: 111; 240: 206 frames/s; every frame accepted, no tearing seen; the three writes of a frame 1.0 to 1.3 ms on average | OBSERVED 2026-11-03 |
 | lian-li-linux, direct mode | sleeps 16 ms between passes, a little under 60 Hz | PUBLISHED, lian-li-linux |
 
-The fastest rate the ring sustains is UNKNOWN. A frame is 192 bytes, so even 240 frames/s is about 46 KB/s, far
-below what a full-speed bulk pipe carries; the limit, if any, is the firmware's (INFERRED). The cadence stayed at 20
-to 22 frames/s through L-Connect's speed and effect changes (CAPTURED), so its speed setting does not appear to set
-the frame rate (INFERRED).
+The ring sustains at least 206 frames/s (OBSERVED 2026-11-03): third-party code streamed a 30-frame rainbow at
+requested rates of 60, 120 and 240 frames/s for 20 s each and delivered 57, 111 and 206 frames/s, with every frame
+accepted (no short or failed write) and no tearing or stutter visible to the observer. The three 64-byte writes of a
+frame took 1.0 to 1.3 ms on average (single frames up to 73 ms, from host scheduling), so the rate the ring itself
+allows is higher than anything measured; the limit reached was the host loop's. A frame is 192 bytes, so 240 frames/s
+is about 46 KB/s, far below what a full-speed bulk pipe carries. The cadence stayed at 20 to 22 frames/s through
+L-Connect's speed and effect changes (CAPTURED), so its speed setting changes the animation's step per frame, not the
+frame rate. Host note: a wait between frames that is rounded to the Windows timer tick (15.6 ms for a background
+process) halves a 60 frames/s stream to 33 (OBSERVED 2026-11-03); a high-resolution timer is needed above about
+30 frames/s.
 
 ### 7.4 How the vendor's effects are produced
 
@@ -493,10 +504,10 @@ against those.
 
 | # | Question | How to settle |
 |---|---|---|
-| 1 | Do the 20-LED packets latch one by one, or only after the packet at offset 40? | send only the offset-0 packet and watch LEDs 0 to 19 |
+| 1 | ~~Do the 20-LED packets latch one by one, or only after the packet at offset 40?~~ **Settled 2026-11-03: one by one** (section 4.1) | done: lone offset-0, offset-20 and offset-40 packets each took effect at once |
 | 2 | Meaning of bytes 2 and 3 of `0x11` on this firmware (count and end-of-frame flag, as on the wired receivers?) | one packet at a time with non-zero values, after item 1 |
 | 3 | Offsets that are not multiples of 20, or above 40 | as item 2 |
-| 4 | The highest frame rate the ring sustains (36 frames/s seen without errors) | stream at 60, 120 and 240 frames/s and watch for tearing |
+| 4 | ~~The highest frame rate the ring sustains~~ **At least 206 frames/s (2026-11-03, section 7.3)**; the true ceiling is still open | a host loop faster than 206 frames/s, or a bulk write that is not awaited per packet |
 | 5 | Whether every unit is wired the same way (one unit seen; section 8 settled it for that unit on 2026-11-02) | the same single-LED check on another unit |
 | 6 | What the ring shows at power-on with no host, and during S3 sleep | power-cycle with no host software running; sleep with nothing claiming the ring |
 | 7 | Whether L-Connect also sends `0x10` when its service starts | a capture that starts before the vendor service |
