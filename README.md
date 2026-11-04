@@ -132,6 +132,18 @@ October 2026.
 Nothing from these projects (code, comments or prose) is copied here, only the protocol facts they established;
 byte layouts, constants and the DES key/IV that they already publish are stated with credit.
 
+## Related references
+
+The same PC's other devices are documented in the same way, each in its own repository:
+
+- [msi-meg-z790-ace-protocol](https://github.com/immortalbob/msi-meg-z790-ace-protocol): MSI MEG Z790 ACE motherboard: Mystic Light, the NCT6687D fan and sensor controller, MSI software and BIOS
+- [msi-coreliquid-s360-protocol](https://github.com/immortalbob/msi-coreliquid-s360-protocol): MSI MEG CoreLiquid S360 cooler: controller and LCD
+- [lian-li-uni-fan-sl-v2-protocol](https://github.com/immortalbob/lian-li-uni-fan-sl-v2-protocol): Lian Li UNI FAN SL V2 and the UNI HUB SL V2 controller
+- [razer-peripherals-protocol](https://github.com/immortalbob/razer-peripherals-protocol): Razer DeathAdder V2, Huntsman V2, Kraken V3 Pro and Synapse 3
+- [asus-xg34wcdg-protocol](https://github.com/immortalbob/asus-xg34wcdg-protocol): ASUS ROG Strix OLED XG34WCDG monitor: DDC/CI and the Aura USB interface
+- [msi-optix-g27c2-protocol](https://github.com/immortalbob/msi-optix-g27c2-protocol): MSI Optix G27C2 monitor: DDC/CI and EDID
+- [msi-rtx4090-gaming-x-trio-protocol](https://github.com/immortalbob/msi-rtx4090-gaming-x-trio-protocol): MSI GeForce RTX 4090 Gaming X Trio: NVML and NVAPI control on Windows
+
 ## Licence
 
 The documents in this folder are released under the **Creative Commons Attribution 4.0 International licence
